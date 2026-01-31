@@ -32,6 +32,7 @@ from pandas.core.dtypes.common import (
     is_named_tuple,
     is_object_dtype,
     is_scalar,
+    pandas_dtype,
 )
 from pandas.core.dtypes.dtypes import (
     BaseMaskedDtype,
@@ -561,7 +562,9 @@ def _homogenize(
         if isinstance(val, (ABCSeries, Index)):
             orig_refs = getattr(val, "_references", None)
             orig_values = val._values
-            if dtype is not None:
+            if dtype is not None and val.dtype != pandas_dtype(dtype):
+                # Only convert when dtypes differ; skipping when equal preserves
+                # refs (orig_values is val._values) and avoids CI dtype quirks.
                 if isinstance(val, Index):
                     val = val.astype(dtype, copy=False)
                 else:
