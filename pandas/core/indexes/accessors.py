@@ -246,23 +246,8 @@ class ArrowTemporalProperties(PandasDelegate, PandasObject, NoNewAttributesMixin
 
     @property
     def components(self) -> DataFrame:
-        from pandas import DataFrame
-
-        components_df = DataFrame(
-            {
-                col: getattr(self._parent.array, f"_dt_{col}")
-                for col in [
-                    "days",
-                    "hours",
-                    "minutes",
-                    "seconds",
-                    "milliseconds",
-                    "microseconds",
-                    "nanoseconds",
-                ]
-            }
-        )
-        return components_df
+        arr = cast("ArrowExtensionArray", self._parent.array)
+        return arr._to_timedeltaarray().components
 
 
 @delegate_names(
